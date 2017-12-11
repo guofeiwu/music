@@ -1,7 +1,7 @@
 <template>
-  <scroll class="listview" :data="data">
+  <scroll class="listview" :data="data" ref="listView">
     <ul>
-      <li v-for="group in data" class="list-group">
+      <li v-for="group in data" class="list-group" ref="listGroup">
         <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
           <li v-for="item in group.items" class="list-group-item">
@@ -11,7 +11,7 @@
         </ul>
       </li>
     </ul>
-    <div class="list-shortcut">
+    <div class="list-shortcut" @touchstart="onSideTouchScroll" @touchmove.stop.prevent="onSideTouchMove">
       <ul>
         <li v-for="(item, index) in sideIndex" :data-index="index" class="item">
           {{item}}
@@ -22,12 +22,44 @@
 </template>
 <script type="text/ecmascript-6">
   import Scroll from 'base/scroll/scroll'
+  import {getData} from 'common/js/dom'
+
+  const ANCHOR_HEIGHT = 18
 
   export default {
+    created() {
+      this.touch = {}
+    },
     props: {
       data: {
         type: Array,
         default: []
+      }
+    },
+    methods: {
+      onSideTouchScroll(e) {
+//        console.log(e)
+//        console.log(e.target)
+        let anchorIndex = getData(e.target, 'index')
+        // 记录按下的位置
+        this.touch.y1 = e.touches[0].pageY
+        // record down position
+        this.touch.anchorIndex = anchorIndex
+        this._scrollTo(anchorIndex)
+      },
+      onSideTouchMove(e) {
+        // 记录滑到的位置
+        this.touch.y2 = e.touches[0].pageY
+        // | 0 表示向下取整
+        let delta = (this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT | 0
+        // record the stop position
+        let anchorIndex = parseInt(this.touch.anchorIndex) + delta
+        this._scrollTo(anchorIndex)
+      },
+
+      _scrollTo(index) {
+        // 0 是表示一个动画的时间
+        this.$refs.listView.scrollToElement(this.$refs.listGroup[index], 0)
       }
     },
     components: {
@@ -36,7 +68,7 @@
     computed: {
       sideIndex() {
         return this.data.map((group) => {
-          return group.title.substr(0,1)
+          return group.title.substr(0, 1)
         })
       }
     }
