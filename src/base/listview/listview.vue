@@ -2,7 +2,7 @@
   <scroll class="listview" :data="data">
     <ul>
       <li v-for="group in data" class="list-group">
-          <h2 class="list-group-title">{{group.title}}</h2>
+        <h2 class="list-group-title">{{group.title}}</h2>
         <ul>
           <li v-for="item in group.items" class="list-group-item">
             <img class="avatar" v-lazy="item.avatar">
@@ -11,10 +11,18 @@
         </ul>
       </li>
     </ul>
+    <div class="list-shortcut">
+      <ul>
+        <li v-for="(item, index) in sideIndex" :data-index="index" class="item">
+          {{item}}
+        </li>
+      </ul>
+    </div>
   </scroll>
 </template>
 <script type="text/ecmascript-6">
   import Scroll from 'base/scroll/scroll'
+
   export default {
     props: {
       data: {
@@ -24,6 +32,13 @@
     },
     components: {
       Scroll
+    },
+    computed: {
+      sideIndex() {
+        return this.data.map((group) => {
+          return group.title.substr(0,1)
+        })
+      }
     }
   }
 </script>
