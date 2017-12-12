@@ -1,8 +1,8 @@
 <template>
-    <div ref="wrapper">
-      <slot>
-      </slot>
-    </div>
+  <div ref="wrapper">
+    <slot>
+    </slot>
+  </div>
 </template>
 <script type="text/ecmascript-6">
   import BScroll from 'better-scroll'
@@ -20,6 +20,10 @@
       data: {
         type: Array,
         default: null
+      },
+      listenScroll: {
+        type: Boolean,
+        default: false
       }
     },
     mounted() {
@@ -36,6 +40,13 @@
           probeType: this.probeType,
           click: this.click
         })
+        if (this.listenScroll) {
+          let self = this
+          this.scroll.on('scroll', (pos) => {
+            self.$emit('scroll', pos)
+            // console.log(pos)
+          })
+        }
       },
       disable() {
         this.scroll && this.scroll.disable()
