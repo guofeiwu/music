@@ -2,6 +2,7 @@ import 'babel-polyfill' // es6一些api的使用，一定要放在最前面
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import store from './store'
 import lazyLoader from 'vue-lazyload'
 import 'common/stylus/index.styl'
 import fastclick from 'fastclick'  // 解决移动端点击事件300毫秒延迟
@@ -18,5 +19,6 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   render: b => b(App)
 })
