@@ -1,5 +1,5 @@
 <template>
-  <div class="music-list">
+  <div class="music-list" ref="musicList">
     <div class="back" @click="back()">
       <i class="icon-back"></i>
     </div>
@@ -8,7 +8,8 @@
       <div class="filter"></div>
     </div>
     <div class="bg-layer" ref="layer"></div>
-    <scroll :data="songs" class="list" :probe-type="probeType" :listen-scroll="listenScroll" ref="list">
+    <scroll :data="songs" class="list" :probe-type="probeType"
+            :listen-scroll="listenScroll" ref="list" @scroll="scrollSongs">
       <div class="song-list-wrapper">
         <song-list :songs="songs"></song-list>
       </div>
@@ -23,10 +24,14 @@
   import Scroll from 'base/scroll/scroll'
   import SongList from 'base/song-list/song-list'
   import Loading from 'base/loading/loading'
+
+  const BANNER_HEIGHT = 40
   export default {
     mounted() {
       // 设置列表距离顶部的距离
-      this.$refs.list.$el.style.top = `${this.$refs.bgImage.clientHeight}px`
+      this.imageHeight = this.$refs.bgImage.clientHeight
+      this.minImageHeight = -this.imageHeight + BANNER_HEIGHT
+      this.$refs.list.$el.style.top = `${this.imageHeight}px`
     },
     created() {
       this.probeType = 3
@@ -51,6 +56,11 @@
         default: ''
       }
     },
+    data() {
+      return {
+        scrollY: 0
+      }
+    },
     computed: {
       bgStyle() {
         return `background-image:url(${this.bgImage})`
@@ -63,9 +73,39 @@
         return singers.join('/')
       }
     },
+    watch: {
+      scrollY(newY) {
+        let zIndex = 0
+        let scale = 1
+        let translateY = Math.max(this.minImageHeight, newY)
+        this.$refs.layer.style['transform'] = `translate3d(0, ${translateY}px, 0)`
+        this.$refs.layer.style['webkitTransform'] = `translate3d(0, ${translateY}px, 0)`
+        let percent = Math.abs(newY / this.imageHeight)
+        if (newY > 0) {
+          zIndex = 10
+          scale = scale + percent
+        } else {
+
+        }
+        if (newY < this.minImageHeight) {
+          zIndex = 10
+          this.$refs.bgImage.style.paddingTop = 0
+          this.$refs.bgImage.style.height = `${BANNER_HEIGHT}px`
+        } else {
+          this.$refs.bgImage.style.paddingTop = '70%'
+          this.$refs.bgImage.style.height = 0
+        }
+        this.$refs.bgImage.style.zIndex = zIndex
+        this.$refs.bgImage.style['transform'] = `scale(${scale})`
+        this.$refs.bgImage.style['webkitTransform'] = `scale(${scale})`
+      }
+    },
     methods: {
       back() {
         this.$router.back()
+      },
+      scrollSongs(pos) {
+        this.scrollY = pos.y
       }
     }
   }
@@ -151,7 +191,6 @@
       top: 0
       bottom: 0
       width: 100%
-      overflow hidden
       background: $color-background
       .song-list-wrapper
         padding: 20px 30px
