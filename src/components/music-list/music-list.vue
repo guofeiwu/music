@@ -17,7 +17,7 @@
     <scroll :data="songs" class="list" :probe-type="probeType"
             :listen-scroll="listenScroll" ref="list" @scroll="scrollSongs">
       <div class="song-list-wrapper">
-        <song-list :songs="songs"></song-list>
+        <song-list :songs="songs" @select="playSong"></song-list>
       </div>
       <div v-show="!songs.length" class="loading-container">
         <loading></loading>
@@ -31,6 +31,7 @@
   import SongList from 'base/song-list/song-list'
   import Loading from 'base/loading/loading'
   import {prefixStyle} from 'common/js/dom'
+  import {mapActions} from 'vuex'
 
   const BANNER_HEIGHT = 40
   const transform = prefixStyle('transform')
@@ -114,7 +115,16 @@
       },
       scrollSongs(pos) {
         this.scrollY = pos.y
-      }
+      },
+      playSong(item, index) {
+        this.startPlaySong({
+          list: this.songs,
+          index
+        })
+      },
+      ...mapActions([
+        'startPlaySong'
+      ])
     }
   }
 </script>

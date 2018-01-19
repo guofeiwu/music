@@ -5,20 +5,22 @@
     <keep-alive>
       <router-view></router-view>
     </keep-alive>
+    <player></player>
   </div>
 </template>
 
 <script>
+  import MHeader from 'components/m-header/m-header'
+  import Tab from 'components/tab/tab'
+  import Player from 'components/player/player'
 
-import MHeader from 'components/m-header/m-header'
-import Tab from 'components/tab/tab'
-
-export default {
-  components: {
-    MHeader,
-    Tab
+  export default {
+    components: {
+      MHeader,
+      Tab,
+      Player
+    }
   }
-}
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">

@@ -1,9 +1,9 @@
 <template>
   <div class="song-list">
     <ul>
-      <li class="item" v-for="(song, index) in songs">
+      <li class="item" v-for="(song, index) in songs" @click="clickItem(song,index)">
         <!--<div class="rank" v-show="rank">-->
-          <!--<span :class="getRankCls(index)" v-text="getRankText(index)"></span>-->
+        <!--<span :class="getRankCls(index)" v-text="getRankText(index)"></span>-->
         <!--</div>-->
         <div class="content">
           <h2 class="name">{{song.name}}</h2>
@@ -23,6 +23,10 @@
       }
     },
     methods: {
+      // 点击派发事件
+      clickItem(item, index) {
+        this.$emit('select', item, index)
+      },
       getDesc(song) {
         return `${song.singer}·${song.album}`
       }
