@@ -21,6 +21,9 @@ const mutations = {
   },
   [types.SET_CURRENT_INDEX](state, currentIndex) {
     state.currentIndex = currentIndex
+  },
+  [types.SET_SONG_URL](state, songUrl) {
+    state.playList[state.currentIndex].url = songUrl
   }
 }
 
