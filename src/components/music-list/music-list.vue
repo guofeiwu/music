@@ -31,7 +31,8 @@
   import SongList from 'base/song-list/song-list'
   import Loading from 'base/loading/loading'
   import {prefixStyle} from 'common/js/dom'
-  import {mapActions} from 'vuex'
+  import {mapActions, mapMutations} from 'vuex'
+  import {getSongUrlDetail, getSongUrl} from 'api/song'
 
   const BANNER_HEIGHT = 40
   const transform = prefixStyle('transform')
@@ -117,14 +118,22 @@
         this.scrollY = pos.y
       },
       playSong(item, index) {
-        this.startPlaySong({
-          list: this.songs,
-          index
+        let songmid = item.mid
+        getSongUrlDetail(songmid).then(res => {
+          let songUrl = getSongUrl(res)
+          this.setSongUrl(songUrl)
+          this.startPlaySong({
+            list: this.songs,
+            index
+          })
         })
       },
       ...mapActions([
         'startPlaySong'
-      ])
+      ]),
+      ...mapMutations({
+        setSongUrl: 'SET_SONG_URL'
+      })
     }
   }
 </script>

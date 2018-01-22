@@ -76,7 +76,7 @@
         </div>
       </div>
     </transition>
-    <audio ref="audio" :src="currentSong"></audio>
+    <audio ref="audio" :src="songUrl" autoplay="autoplay"></audio>
   </div>
 </template>
 
@@ -84,17 +84,13 @@
   import {mapGetters, mapMutations} from 'vuex'
   import animations from 'create-keyframe-animation'
   import {prefixStyle} from 'common/js/dom'
-  import {getSongUrlDetail, getSongUrl} from 'api/song'
+  // import {getSongUrlDetail, getSongUrl} from 'api/song'
 
   const transform = prefixStyle('transform')
   export default {
     computed: {
       playIcon() {
         return this.playing ? 'icon-pause' : 'icon-play'
-      },
-      currentSong() {
-        console.log(this.songUrl)
-        return this.songUrl
       },
       ...mapGetters([
         'fullScreen',
@@ -103,17 +99,35 @@
         'songUrl'
       ])
     },
+    mounted() {
+      console.log(this.songUrl)
+    },
     watch: {
-      currentPlaySong(newSong) {
-        let songmid = newSong.mid
-        this.$nextTick(() => {
-          getSongUrlDetail(songmid).then(res => {
-            let songUrl = getSongUrl(res)
-            this.setSongUrl(songUrl)
-            this.$refs.audio.play()
-          })
-        })
-      }
+//      currentPlaySong(newSong) {
+//        this.$nextTick(() => {
+//          let songmid = newSong.mid
+//          getSongUrlDetail(songmid).then(res => {
+//            let playPromise = this.$refs.audio.play()
+//            let songUrl = getSongUrl(res)
+//            this.setSongUrl(songUrl)
+//            // let playPromise = this.$refs.audio.play()
+//            console.log(songUrl)
+//            console.log(playPromise)
+//            if (playPromise !== 'undefined') {
+//              playPromise.then(_ => {
+//                // Automatic playback started!
+//                // Show playing UI.
+//                console.log('Automatic playback started!')
+//              })
+//                .catch(error => {
+//                  // Auto-play was prevented
+//                  // Show paused UI.
+//                  console.log(error)
+//                })
+//            }
+//          })
+//        })
+//      }
     },
     methods: {
       back() {
@@ -145,8 +159,6 @@
           }
         })
         animations.runAnimation(this.$refs.cdWrapper, 'move', done)
-        console.log(x)
-        console.log(y)
       },
       afterEnter() {
         animations.unregisterAnimation('move')
