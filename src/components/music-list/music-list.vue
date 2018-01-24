@@ -5,7 +5,7 @@
     </div>
     <h1 class="title" v-html="title"></h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
-      <div class="play-wrapper" ref="playBtn">
+      <div class="play-wrapper" ref="playBtn" @click="randomPlay">
         <div class="play">
           <i class="icon-play"></i>
           <span class="text">随机播放全部</span>
@@ -32,11 +32,13 @@
   import Loading from 'base/loading/loading'
   import {prefixStyle} from 'common/js/dom'
   import {mapActions, mapMutations} from 'vuex'
-  import {getSongUrlDetail, getSongUrl} from 'api/song'
+  //  import {getSongUrlDetail, getSongUrl} from 'api/song'
+  import {playListMixin} from 'common/js/mixin'
 
   const BANNER_HEIGHT = 40
   const transform = prefixStyle('transform')
   export default {
+    mixins: [playListMixin],
     mounted() {
       // 设置列表距离顶部的距离
       this.imageHeight = this.$refs.bgImage.clientHeight
@@ -111,6 +113,16 @@
       }
     },
     methods: {
+      handlePlaylist(playList) {
+        let bottom = playList.length > 0 ? '60px' : ''
+        this.$refs.list.$el.style.bottom = bottom
+        this.$refs.list.refresh()
+      },
+      randomPlay() {
+        this.randomPlaySong({
+          list: this.songs
+        })
+      },
       back() {
         this.$router.back()
       },
@@ -118,18 +130,23 @@
         this.scrollY = pos.y
       },
       playSong(item, index) {
-        let songmid = item.mid
-        getSongUrlDetail(songmid).then(res => {
-          let songUrl = getSongUrl(res)
-          this.setSongUrl(songUrl)
-          this.startPlaySong({
-            list: this.songs,
-            index
-          })
+//        let songmid = item.mid
+//        getSongUrlDetail(songmid).then(res => {
+//          let songUrl = getSongUrl(res)
+//          this.setSongUrl(songUrl)
+//          this.startPlaySong({
+//            list: this.songs,
+//            index
+//          })
+//        })
+        this.startPlaySong({
+          list: this.songs,
+          index
         })
       },
       ...mapActions([
-        'startPlaySong'
+        'startPlaySong',
+        'randomPlaySong'
       ]),
       ...mapMutations({
         setSongUrl: 'SET_SONG_URL'

@@ -56,17 +56,40 @@ const devWebpackConfig = merge(baseWebpackConfig, {
           console.log(e)
         })
       }),
-      app.get('/getSongUrl', (req, res) => {
-        var url = 'https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg'
-        axios.get(url, {
-          params: req.query
-        }).then((response) => {
-          console.log(response)
-          res.json(response.data)
-        }).catch((e) => {
-          console.log(e)
+        app.get('/getSongUrl', (req, res) => {
+          var url = 'https://c.y.qq.com/base/fcgi-bin/fcg_music_express_mobile3.fcg'
+          axios.get(url, {
+            params: req.query
+          }).then((response) => {
+            console.log(response)
+            res.json(response.data)
+          }).catch((e) => {
+            console.log(e)
+          })
+        }),
+        app.get('/getSongLyric', (req, res) => {
+          const url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'
+          axios.get(url, {
+            headers: {
+              host: 'c.y.qq.com',
+              referer: 'https://c.y.qq.com/'
+            },
+            params: req.query
+          }).then((response) => {
+            var ret = response.data
+            if (typeof ret === 'string') {
+              var reg = /^\w+\(({[^()]+})\)$/
+              var matches = ret.match(reg)
+              if (matches) {
+                ret = JSON.parse(matches[1])
+              }
+            }
+            res.json(ret)
+            // res.json(response.data)
+          }).catch(error => {
+            console.log(error)
+          })
         })
-      })
     }
   },
   plugins: [
