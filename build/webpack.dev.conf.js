@@ -89,6 +89,29 @@ const devWebpackConfig = merge(baseWebpackConfig, {
           }).catch(error => {
             console.log(error)
           })
+        }),
+        app.get('/getDiscSongList', (req, res) => {
+          var url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+          axios.get(url, {
+            headers: {
+              host: 'c.y.qq.com',
+              referer: 'https://c.y.qq.com/'
+            },
+            params: req.query
+          }).then((response) => {
+            var ret = response.data
+            if (typeof ret === 'string') {
+              var reg = /^\w+\(({[^()+^{}]+})\)$/
+              var matches = ret.match(reg)
+              if (matches) {
+                ret = JSON.parse(matches[1])
+              }
+            }
+            res.json(ret)
+            // res.json(response.data)
+          }).catch((e) => {
+            console.log(e)
+          })
         })
     }
   },
