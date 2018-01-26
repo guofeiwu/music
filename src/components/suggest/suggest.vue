@@ -1,5 +1,10 @@
 <template>
-  <scroll ref="suggest" class="suggest" :data="songsList">
+  <scroll ref="suggest"
+          class="suggest"
+          :data="songsList"
+          :pull-up="pullUp"
+          @scrollToEnd="loadMore"
+  >
     <ul class="suggest-list">
       <li class="suggest-item" v-for="item in songsList">
         <div class="icon">
@@ -9,6 +14,7 @@
           <p class="text" v-html="getDisplayName(item)"></p>
         </div>
       </li>
+      <loading v-show="hasMore"></loading>
     </ul>
   </scroll>
 </template>
@@ -18,6 +24,7 @@
   import {ERR_OK} from 'api/config'
   import {createSong} from 'common/js/song'
   import Scroll from 'base/scroll/scroll'
+  import Loading from 'base/loading/loading'
 
   const TYPE_SINGER = 'singer'
   export default {
@@ -29,10 +36,27 @@
     },
     data() {
       return {
-        songsList: []
+        songsList: [],
+        page: 1,
+        pageSize: 30,
+        showSinger: true,
+        pullUp: true,
+        hasMore: true
       }
     },
     methods: {
+      loadMore() {
+        if (!this.hasMore) {
+          return
+        }
+        this.page++
+        getSearchResultList(this.query, this.page, this.showSinger, this.pageSize).then(res => {
+          if (res.code === ERR_OK) {
+            this.songsList = this.songsList.concat(this._normalResultList(res.data))
+            this._checkMore(res.data)
+          }
+        })
+      },
       getDisplayName(item) {
         if (item.type === TYPE_SINGER) {
           return item.singername
@@ -48,11 +72,21 @@
         }
       },
       search(newQuery) {
-        getSearchResultList(newQuery, 1, true).then(res => {
+        this.page = 1
+        this.hasMore = true
+        this.$refs.suggest.scrollTo(0, 0)
+        getSearchResultList(newQuery, this.page, this.showSinger, this.pageSize).then(res => {
           if (res.code === ERR_OK) {
             this.songsList = this._normalResultList(res.data)
+            this._checkMore(res.data)
           }
         })
+      },
+      _checkMore(data) {
+        // 没有数据返回，或者当前返回的数据和之前返回的数据的总和大于或者等于总数 则没有更多
+        if (!data.song.list.length || (data.song.curnum + this.pageSize * this.page) >= data.totalnum) {
+          this.hasMore = false
+        }
       },
       _normalResultList(data) {
         let ret = []
@@ -80,7 +114,8 @@
       }
     },
     components: {
-      Scroll
+      Scroll,
+      Loading
     }
   }
 </script>

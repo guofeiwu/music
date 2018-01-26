@@ -43,7 +43,6 @@
     },
     methods: {
       clickHotKey(k) {
-        console.log('11111')
         this.$refs.searchBox.setHotQuery(k)
       },
       _getHotKey() {
