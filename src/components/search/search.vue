@@ -1,11 +1,66 @@
 <template>
   <div class="search">
-    search
+    <div class="search-box-wrapper">
+      <search-box ref="searchBox" @query="onQueryChange"></search-box>
+    </div>
+    <div ref="shortcutWrapper" class="shortcut-wrapper" v-show="!query">
+      <div ref="shortcut" class="shortcut">
+        <div>
+          <div class="hot-key">
+            <h1 class="title">热门搜索</h1>
+            <ul>
+              <li class="item" v-for="hotkey in hotKeys" @click="clickHotKey(hotkey.k)">
+                <span>{{hotkey.k}}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="search-result" ref="searchResult" v-show="query">
+      <suggest ref="suggest" :query="query"></suggest>
+    </div>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+  import SearchBox from 'base/search-box/search-box'
+  import Suggest from 'components/suggest/suggest'
+  import {getHotKey} from 'api/search'
+  import {ERR_OK} from 'api/config'
+
   export default {
+    data() {
+      return {
+//        placeholder: '搜索歌曲、歌手'
+//        songsList: []
+        query: '',
+        hotKeys: []
+      }
+    },
+    created() {
+      this._getHotKey()
+    },
+    methods: {
+      clickHotKey(k) {
+        console.log('11111')
+        this.$refs.searchBox.setHotQuery(k)
+      },
+      _getHotKey() {
+        getHotKey().then((res) => {
+          if (res.code === ERR_OK) {
+            this.hotKeys = res.data.hotkey.slice(0, 15)
+          }
+        })
+      },
+      onQueryChange(keyword) {
+        this.query = keyword
+      }
+    },
+    components: {
+      SearchBox,
+      Suggest
+    }
   }
 </script>
 
